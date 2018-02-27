@@ -1,0 +1,62 @@
+1. host to host iperf test   -- base (100%)
+root@k001:~# iperf -c 10.1.0.206 -p 5201 -i 1
+------------------------------------------------------------
+Client connecting to 10.1.0.206, TCP port 5201
+TCP window size: 85.0 KByte (default)
+------------------------------------------------------------
+[  3] local 10.1.0.204 port 49218 connected with 10.1.0.206 port 5201
+[ ID] Interval       Transfer     Bandwidth
+[  3]  0.0- 1.0 sec   177 MBytes  1.48 Gbits/sec
+[  3]  1.0- 2.0 sec   166 MBytes  1.39 Gbits/sec
+[  3]  2.0- 3.0 sec   154 MBytes  1.29 Gbits/sec
+[  3]  3.0- 4.0 sec   157 MBytes  1.32 Gbits/sec
+[  3]  4.0- 5.0 sec   141 MBytes  1.18 Gbits/sec
+[  3]  5.0- 6.0 sec   145 MBytes  1.22 Gbits/sec
+[  3]  6.0- 7.0 sec   152 MBytes  1.28 Gbits/sec
+[  3]  7.0- 8.0 sec   148 MBytes  1.25 Gbits/sec
+[  3]  8.0- 9.0 sec   153 MBytes  1.28 Gbits/sec
+[  3]  9.0-10.0 sec   145 MBytes  1.22 Gbits/sec
+[  3]  0.0-10.0 sec  1.50 GBytes  1.29 Gbits/sec
+root@k001:~#
+
+
+2. pod to pod iperf test    ---- 77% (999/1290)
+root@k001:~# kubectl exec -it iperfc-7f8bc954d5-tvdjg -- /bin/sh
+/ $ iperf -c 10.36.0.1 -p 5201 -i 1
+------------------------------------------------------------
+Client connecting to 10.36.0.1, TCP port 5201
+TCP window size: 45.0 KByte (default)
+------------------------------------------------------------
+[  3] local 10.44.0.1 port 49046 connected with 10.36.0.1 port 5201
+[ ID] Interval       Transfer     Bandwidth
+[  3]  0.0- 1.0 sec   115 MBytes   962 Mbits/sec
+[  3]  1.0- 2.0 sec   117 MBytes   978 Mbits/sec
+[  3]  2.0- 3.0 sec   131 MBytes  1.10 Gbits/sec
+[  3]  3.0- 4.0 sec   125 MBytes  1.05 Gbits/sec
+[  3]  4.0- 5.0 sec   130 MBytes  1.09 Gbits/sec
+[  3]  5.0- 6.0 sec   123 MBytes  1.03 Gbits/sec
+[  3]  6.0- 7.0 sec   126 MBytes  1.05 Gbits/sec
+[  3]  7.0- 8.0 sec   124 MBytes  1.04 Gbits/sec
+[  3]  8.0- 9.0 sec   121 MBytes  1.02 Gbits/sec
+[  3]  9.0-10.0 sec  80.8 MBytes   677 Mbits/sec
+[  3]  0.0-10.0 sec  1.16 GBytes   999 Mbits/sec
+
+3. pod to host test
+/ $ iperf -c 10.1.0.206 -p 5201 -i 1  -- almost base
+------------------------------------------------------------
+Client connecting to 10.1.0.206, TCP port 5201
+TCP window size: 85.0 KByte (default)
+------------------------------------------------------------
+[  3] local 10.44.0.1 port 37554 connected with 10.1.0.206 port 5201
+[ ID] Interval       Transfer     Bandwidth
+[  3]  0.0- 1.0 sec   168 MBytes  1.41 Gbits/sec
+[  3]  1.0- 2.0 sec   158 MBytes  1.32 Gbits/sec
+[  3]  2.0- 3.0 sec   164 MBytes  1.37 Gbits/sec
+[  3]  3.0- 4.0 sec   164 MBytes  1.38 Gbits/sec
+[  3]  4.0- 5.0 sec   160 MBytes  1.34 Gbits/sec
+[  3]  5.0- 6.0 sec   156 MBytes  1.31 Gbits/sec
+[  3]  6.0- 7.0 sec   153 MBytes  1.28 Gbits/sec
+[  3]  7.0- 8.0 sec   138 MBytes  1.15 Gbits/sec
+[  3]  8.0- 9.0 sec   132 MBytes  1.10 Gbits/sec
+[  3]  9.0-10.0 sec   142 MBytes  1.19 Gbits/sec
+[  3]  0.0-10.0 sec  1.50 GBytes  1.29 Gbits/sec
