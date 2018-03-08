@@ -1,0 +1,177 @@
+https://github.com/kubernetes/dashboard/wiki/Access-control
+
+
+(1) dashboard 설치
+
+https://github.com/kubernetes/dashboard
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+
+
+(2) dashboard가 kubernetes svc 형태로 설치됨.
+
+root@k001:~/work# kubectl get svc -n kube-system
+NAME                   TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)         AGE
+kube-dns               ClusterIP   10.96.0.10       <none>        53/UDP,53/TCP   9d
+kubernetes-dashboard   NodePort    10.110.210.181   <none>        443:31737/TCP   1h
+root@k001:~/work# kubectl describe svc/kubernetes-dashboard -n kube-system
+Name:                     kubernetes-dashboard
+Namespace:                kube-system
+Labels:                   k8s-app=kubernetes-dashboard
+Annotations:              <none>
+Selector:                 k8s-app=kubernetes-dashboard
+Type:                     ClusterIP
+IP:                       10.110.210.181
+Port:                     <unset>  443/TCP
+TargetPort:               8443/TCP
+NodePort:                 <unset>  31737/TCP
+Endpoints:                10.36.0.1:8443
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+
+
+(3) svc ip(cluster ip)를 외부에서 접속할 수 없음으로 clusterip --> nodeport 형태로 바꿔줌
+root@k001:~/work# kubectl edit svc/kubernetes-dashboard -n kube-system
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard
+  namespace: kube-system
+  resourceVersion: "98415"
+  selfLink: /api/v1/namespaces/kube-system/services/kubernetes-dashboard
+  uid: 7c40a1fd-229a-11e8-a881-000c29ceffb9
+spec:
+  clusterIP: 10.110.210.181
+  externalTrafficPolicy: Cluster
+  ports:
+  - nodePort: 31737
+    port: 443
+    protocol: TCP
+    targetPort: 8443
+  selector:
+    k8s-app: kubernetes-dashboard
+  sessionAffinity: None
+  type: ClusterIP  # <--- NodePort로 바꿈
+status:
+  loadBalancer: {}
+
+root@k001:~/work# kubectl describe svc/kubernetes-dashboard -n kube-system
+Name:                     kubernetes-dashboard
+Namespace:                kube-system
+Labels:                   k8s-app=kubernetes-dashboard
+Annotations:              <none>
+Selector:                 k8s-app=kubernetes-dashboard
+Type:                     ClusterIP
+IP:                       10.110.210.181
+Port:                     <unset>  443/TCP
+TargetPort:               8443/TCP
+NodePort:                 <unset>  31737/TCP  # <--- 외부로 연결되는 포트번호 확인
+Endpoints:                10.36.0.1:8443
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+
+
+(4) 이제 브라우저에서 master ip에 대한 no_proxy 설정 확인한후에
+(5) 브라우저에 입력하기
+    https://10.1.0.204:31737
+    
+    
+
+(6) 하지만 로긴이 안되... 온갓 권한이 없다고 나와... 멘붕직전.... 모든 권한을 가지는 role을 만드는 법이 아래에 
+
+https://github.com/kubernetes/dashboard/wiki/Access-control
+
+
+root@k001:~/work# vi dashboard-admin.yaml
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: kubernetes-dashboard
+  labels:
+    k8s-app: kubernetes-dashboard
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: kubernetes-dashboard
+  namespace: kube-system
+  
+kubectl create -f dashboard-admin.yaml
+clusterrolebinding "kubernetes-dashboard" created
+root@k001:~/work# kubectl -n kube-system get secret
+NAME                                             TYPE                                  DATA      AGE
+attachdetach-controller-token-rrcv6              kubernetes.io/service-account-token   3         9d
+bootstrap-signer-token-r8gfv                     kubernetes.io/service-account-token   3         9d
+bootstrap-token-ffecc3                           bootstrap.kubernetes.io/token         6         51m
+certificate-controller-token-t65wt               kubernetes.io/service-account-token   3         9d
+clusterrole-aggregation-controller-token-nrm8g   kubernetes.io/service-account-token   3         9d
+cronjob-controller-token-p6jff                   kubernetes.io/service-account-token   3         9d
+daemon-set-controller-token-9g2cj                kubernetes.io/service-account-token   3         9d
+default-token-j7krl                              kubernetes.io/service-account-token   3         9d
+deployment-controller-token-vhl28                kubernetes.io/service-account-token   3         9d
+disruption-controller-token-7j459                kubernetes.io/service-account-token   3         9d
+endpoint-controller-token-r7z2g                  kubernetes.io/service-account-token   3         9d
+generic-garbage-collector-token-cm7s8            kubernetes.io/service-account-token   3         9d
+horizontal-pod-autoscaler-token-mm2cx            kubernetes.io/service-account-token   3         9d
+job-controller-token-7bfqr                       kubernetes.io/service-account-token   3         9d
+kube-dns-token-hdntp                             kubernetes.io/service-account-token   3         9d
+kube-proxy-token-wkbll                           kubernetes.io/service-account-token   3         9d
+kubernetes-dashboard-certs                       Opaque                                0         1h
+kubernetes-dashboard-key-holder                  Opaque                                2         1h
+kubernetes-dashboard-token-nwbfl                 kubernetes.io/service-account-token   3         1h
+namespace-controller-token-vtdgs                 kubernetes.io/service-account-token   3         9d
+node-controller-token-ffjr9                      kubernetes.io/service-account-token   3         9d
+persistent-volume-binder-token-7kr97             kubernetes.io/service-account-token   3         9d
+pod-garbage-collector-token-656f8                kubernetes.io/service-account-token   3         9d
+replicaset-controller-token-x89fr                kubernetes.io/service-account-token   3         9d
+replication-controller-token-d699f               kubernetes.io/service-account-token   3         9d
+resourcequota-controller-token-lsvnh             kubernetes.io/service-account-token   3         9d
+service-account-controller-token-pczsp           kubernetes.io/service-account-token   3         9d
+service-controller-token-rfvzb                   kubernetes.io/service-account-token   3         9d
+statefulset-controller-token-p2ntp               kubernetes.io/service-account-token   3         9d
+token-cleaner-token-nz56q                        kubernetes.io/service-account-token   3         9d
+ttl-controller-token-d2nq8                       kubernetes.io/service-account-token   3         9d
+weave-net-token-zp7s9                            kubernetes.io/service-account-token   3         9d
+root@k001:~/work# kubectl -n kube-system describe secret kubernetes-dashboard
+Name:         kubernetes-dashboard-certs
+Namespace:    kube-system
+Labels:       k8s-app=kubernetes-dashboard
+Annotations:  <none>
+
+Type:  Opaque
+
+Data
+====
+
+Name:         kubernetes-dashboard-key-holder
+Namespace:    kube-system
+Labels:       <none>
+Annotations:  <none>
+
+Type:  Opaque
+
+Data
+====
+priv:  1679 bytes
+pub:   459 bytes
+
+Name:         kubernetes-dashboard-token-nwbfl
+Namespace:    kube-system
+Labels:       <none>
+Annotations:  kubernetes.io/service-account.name=kubernetes-dashboard
+              kubernetes.io/service-account.uid=7b9ea8cf-229a-11e8-a881-000c29ceffb9
+
+Type:  kubernetes.io/service-account-token
+
+Data
+====
+ca.crt:     1025 bytes
+namespace:  11 bytes
+token:      eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJrdWJlcm5ldGVzLWRhc2hib2FyZC10b2tlbi1ud2JmbCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjdiOWVhOGNmLTIyOWEtMTFlOC1hODgxLTAwMGMyOWNlZmZiOSIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlLXN5c3RlbTprdWJlcm5ldGVzLWRhc2hib2FyZCJ9.IP-7jGL6WBIVmAIu_M4iuiEVoYsJR8vK8LdAavm-5H82iRTxAK-yTo3-3cZwZp4JxsDZMqhwY9KVVhkPjhdK9zPn4dyam3yalKuow1avcfS7w0BrKLdroyjbUE64jIUrSaZF5Y8QaUP5bbQROQw7qMtL5S3ZLAXmkpWHK236qGv9_SHah7gLV1itW__28yZ3a5LrPVZLe_yuxbK4zviBKRInokAZuctL0WwMl16e-ngyK3gYxIHptxmkWzHV2RnuAw-opSu7dNNnxZJMdCQFJTCNrBkLfveRxmjURAWSapkX5lY-kCNvcUnwgmNYR04gBl_oW0NmQcJCRm0coVAITQ
+
+root@k001:~/work#  
+
+
+(7) 바로 위에 token 값을 복사해서 로긴화면에 token에 입력하면 끝. 
