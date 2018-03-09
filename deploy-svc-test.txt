@@ -1,0 +1,211 @@
+(1) deployment 선언해서 실행하기
+
+root@k0:~/work# cat deploy-test-1.yaml 
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: deploy-test-1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: web-front-end # <--- app 이름
+        version: v1
+    spec:
+      containers:
+      - name: tiny-web-server-1 
+        image: jonlangemak/web1_8080   # <-- 8080 접속시 성공메시지를 리턴해줌. 
+        ports:
+        - containerPort: 8080   # <-- 컨테이너의 포트는 8080
+          name: web-port
+          protocol: TCP
+
+root@k0:~/work# cat deploy-test-2.yaml 
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: deploy-test-2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: web-front-end  # <-- 동일 app 이름
+        version: v2
+    spec:
+      containers:
+      - name: tiny-web-server-1
+        image: jonlangemak/web1_9090
+        ports:
+        - containerPort: 9090  # <-- 9090 접속시 성공메시지 리턴
+          name: web-port
+          protocol: TCP
+
+생성~
+root@k0:~# kc create -f deploy-test-1.yaml
+root@k0:~# kc create -f deploy-test-2.yaml
+
+
+root@k001:~# kubectl get po -o wide
+NAME                             READY     STATUS    RESTARTS   AGE       IP          NODE
+deploy-test-1-8646c8d498-blvg4   1/1       Running   0          4m        10.44.0.3   k002
+iperfc-7f8bc954d5-m8n44          1/1       Running   0          16m       10.44.0.2   k002
+iperfs-5b784d89c-6rlkx           1/1       Running   0          16m       10.36.0.2   k003
+iperfs-5b784d89c-tnhwq           1/1       Running   0          16m       10.44.0.1   k002
+
+
+deploy 후에 scale 명령으로 deployment replicas를 늘릴수 있다. 
+
+root@k001:~# kubectl scale --replicas=2 deployment/deploy-test-1
+deployment "deploy-test-1" scaled
+root@k001:~# kubectl scale --replicas=2 deployment/deploy-test-2
+deployment "deploy-test-2" scaled
+
+
+root@k001:~# curl http://10.44.0.3:8080
+^C
+
+역시 proxy를 피해야한다... 
+
+root@k001:~# env | grep no_proxy
+no_proxy=localhost,127.0.0.1,10.1.0/24,10.1.0.204,10.1.0.205,10.1.0.206,10.1.0.207
+root@k001:~# export no_proxy=localhost,127.0.0.1,10.1.0/24,10.1.0.204,10.1.0.205,10.1.0.206,10.1.0.207,10.44.0.1,10.44.0.2,10.44.0.3,10.44.0.4,10.36.0.2,10.36.0.3,10.36.0.4
+root@k001:~# kubectl get po -o wide
+NAME                             READY     STATUS    RESTARTS   AGE       IP          NODE
+deploy-test-1-8646c8d498-7kc2p   1/1       Running   0          2m        10.36.0.4   k003
+deploy-test-1-8646c8d498-blvg4   1/1       Running   0          8m        10.44.0.3   k002
+deploy-test-2-679f8946df-4p2c5   1/1       Running   0          2m        10.44.0.4   k002
+deploy-test-2-679f8946df-wlwlr   1/1       Running   0          3m        10.36.0.3   k003
+iperfc-7f8bc954d5-m8n44          1/1       Running   0          19m       10.44.0.2   k002
+iperfs-5b784d89c-6rlkx           1/1       Running   0          19m       10.36.0.2   k003
+iperfs-5b784d89c-tnhwq           1/1       Running   0          19m       10.44.0.1   k002
+
+
+
+(2) pod ip:port로 접속해보면 성공~
+
+
+root@k001:~# curl http://10.44.0.3:8080
+This is Web Server 1 running on 8080!
+root@k001:~#
+
+root@k001:~# curl http://10.36.0.4:8080
+This is Web Server 1 running on 8080!
+root@k001:~#
+
+root@k001:~# curl http://10.36.0.3:8080
+curl: (7) Failed to connect to 10.36.0.3 port 8080: Connection refused
+root@k001:~# curl http://10.36.0.3:9090
+This is Web Server 1 running on 9090!
+
+
+
+(3) 이제 서비스 생성해서 해보자. 
+
+root@k0:~/work# cat svc-test-1.yaml 
+kind: Service
+apiVersion: v1
+metadata:
+  name: svc-test-1
+spec:
+  selector:
+    app: web-front-end   # <-- 이 서비스는 web-front-end 이름을 가진 app들을 번갈아 선택해준다. 
+  ports:
+    - protocol: TCP
+      port: 80   # <-- 이 서비스는 80으로 접속해야 한다. 
+      targetPort: web-port
+      
+root@k0:~/work# kc create -f svc-test-1.yaml
+
+root@k001:~# kubectl get svc -o wide
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE       SELECTOR
+kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP   9d        <none>
+svc-test-1   ClusterIP   10.111.246.253   <none>        80/TCP    2h        app=web-front-end
+root@k001:~#
+root@k001:~# export no_proxy=localhost,127.0.0.1,10.1.0/24,10.1.0.204,10.1.0.205,10.1.0.206,10.1.0.207,10.44.0.1,10.44.0.2,10.44.0.3,10.44.0.4,10.36.0.2,10.36.0.3,10.36.0.4,10.111.246.253
+
+
+(4) svc IP로 접속하면, 두 deployment가 번갈아 응답한다. 
+
+root@k001:~# curl 10.111.246.253
+This is Web Server 1 running on 9090!
+root@k001:~#
+root@k001:~# curl 10.111.246.253
+This is Web Server 1 running on 8080!
+root@k001:~#
+root@k001:~# curl 10.111.246.253
+This is Web Server 1 running on 9090!
+root@k001:~#
+root@k001:~# curl 10.111.246.253
+
+
+
+(5) svc-test-1 svc의 이름으로 접속되는지... dns 동작여부  --> 서비스 내부 pod들이 서비스를 호출할때 사용할 수 있다. 즉, svc의 ip가 바뀌어도 서비스 가능하단 말이지롱
+
+root@k001:~# curl http://svc-test-1
+<HTML>...
+Your requested host "svc-test-1" could not be resolved by DNS.
+</HTML>
+
+
+안된다. 
+역시나 그들 내부 즉, svc내에서 불러야 되는 것이었다. 
+그래서 직접 확인해보기로...
+
+root@k001:~# kubectl exec -it deploy-test-2-679f8946df-4p2c5 -- /bin/sh
+/ # nslookup svc-test-1
+Server:    10.96.0.10       # <-- kube-dns svc ip
+Address 1: 10.96.0.10 kube-dns.kube-system.svc.cluster.local
+
+Name:      svc-test-1
+Address 1: 10.111.246.253 svc-test-1.default.svc.cluster.local
+/ # exit
+
+거봐 svc내에 속한 한 pod에서 nslookup하니까 svc IP가 응답하잖아. 
+
+root@k001:~# kubectl get svc -o wide
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE       SELECTOR
+kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP   9d        <none>
+svc-test-1   ClusterIP   10.111.246.253   <none>        80/TCP    4m        app=web-front-end
+root@k001:~# kubectl get po --all-namespaces  -o wide
+NAMESPACE     NAME                                    READY     STATUS    RESTARTS   AGE       IP           NODE
+default       deploy-test-1-8646c8d498-7kc2p          1/1       Running   0          10m       10.36.0.4    k003
+default       deploy-test-1-8646c8d498-blvg4          1/1       Running   0          15m       10.44.0.3    k002
+default       deploy-test-2-679f8946df-4p2c5          1/1       Running   0          9m        10.44.0.4    k002
+default       deploy-test-2-679f8946df-wlwlr          1/1       Running   0          10m       10.36.0.3    k003
+default       iperfc-7f8bc954d5-m8n44                 1/1       Running   0          26m       10.44.0.2    k002
+default       iperfs-5b784d89c-6rlkx                  1/1       Running   0          26m       10.36.0.2    k003
+default       iperfs-5b784d89c-tnhwq                  1/1       Running   0          26m       10.44.0.1    k002
+kube-system   etcd-k001                               1/1       Running   2          9d        10.1.0.204   k001
+kube-system   kube-apiserver-k001                     1/1       Running   2          9d        10.1.0.204   k001
+kube-system   kube-controller-manager-k001            1/1       Running   2          9d        10.1.0.204   k001
+kube-system   kube-dns-6f4fd4bdf-92jvn                3/3       Running   6          9d        10.32.0.5    k001
+kube-system   kube-proxy-59c66                        1/1       Running   0          9d        10.1.0.206   k003
+kube-system   kube-proxy-7qrc7                        1/1       Running   2          9d        10.1.0.204   k001
+kube-system   kube-proxy-smbkq                        1/1       Running   0          9d        10.1.0.205   k002
+kube-system   kube-scheduler-k001                     1/1       Running   2          9d        10.1.0.204   k001
+kube-system   kubernetes-dashboard-5bd6f767c7-hw8z5   1/1       Running   0          19h       10.36.0.1    k003
+kube-system   weave-net-ck5tw                         2/2       Running   1          9d        10.1.0.205   k002
+kube-system   weave-net-jkjdv                         2/2       Running   5          9d        10.1.0.204   k001
+kube-system   weave-net-nflsp                         2/2       Running   1          9d        10.1.0.206   k003
+root@k001:~# kubectl get svc --all-namespaces -o wide
+NAMESPACE     NAME                   TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)         AGE       SELECTOR
+default       kubernetes             ClusterIP   10.96.0.1        <none>        443/TCP         9d        <none>
+default       svc-test-1             ClusterIP   10.111.246.253   <none>        80/TCP          5m        app=web-front-end
+kube-system   kube-dns               ClusterIP   10.96.0.10       <none>        53/UDP,53/TCP   9d        k8s-app=kube-dns
+kube-system   kubernetes-dashboard   NodePort    10.110.210.181   <none>        443:31737/TCP   19h       k8s-app=kubernetes-dashboard
+root@k001:~# kubectl describe svc svc-test-1
+Name:              svc-test-1
+Namespace:         default
+Labels:            <none>
+Annotations:       <none>
+Selector:          app=web-front-end
+Type:              ClusterIP
+IP:                10.111.246.253
+Port:              <unset>  80/TCP
+TargetPort:        web-port/TCP
+Endpoints:         10.36.0.4:8080,10.44.0.3:8080,10.36.0.3:9090 + 1 more...
+Session Affinity:  None
+Events:            <none>
+root@k001:~#
