@@ -1,3 +1,32 @@
+root@k001:~# kubectl get po -o wide --all-namespaces
+NAMESPACE     NAME                                    READY     STATUS    RESTARTS   AGE       IP           NODE
+default       deploy-test-1-8646c8d498-7kc2p          1/1       Running   1          4d        10.36.0.7    k003
+default       deploy-test-1-8646c8d498-l8f2l          1/1       Running   0          24m       10.44.0.5    k002
+default       deploy-test-2-679f8946df-8zct8          1/1       Running   0          24m       10.44.0.6    k002
+default       deploy-test-2-679f8946df-wlwlr          1/1       Running   1          4d        10.36.0.8    k003
+default       iperfc-7f8bc954d5-cz7ng                 1/1       Running   0          39m       10.36.0.10   k003
+default       iperfs-5b784d89c-6rlkx                  1/1       Running   1          4d        10.36.0.5    k003
+default       iperfs-5b784d89c-b49lx                  1/1       Running   0          39m       10.36.0.9    k003
+kube-system   etcd-k001                               1/1       Running   3          14d       10.1.0.204   k001
+kube-system   kube-apiserver-k001                     1/1       Running   3          14d       10.1.0.204   k001
+kube-system   kube-controller-manager-k001            1/1       Running   3          14d       10.1.0.204   k001
+kube-system   kube-dns-6f4fd4bdf-92jvn                3/3       Running   27         14d       10.32.0.4    k001
+kube-system   kube-proxy-59c66                        1/1       Running   1          14d       10.1.0.206   k003
+kube-system   kube-proxy-7qrc7                        1/1       Running   3          14d       10.1.0.204   k001
+kube-system   kube-proxy-smbkq                        1/1       Running   1          14d       10.1.0.205   k002
+kube-system   kube-scheduler-k001                     1/1       Running   3          14d       10.1.0.204   k001
+kube-system   kubernetes-dashboard-5bd6f767c7-hw8z5   1/1       Running   10         5d        10.36.0.6    k003
+kube-system   weave-net-ck5tw                         2/2       Running   4          14d       10.1.0.205   k002
+kube-system   weave-net-jkjdv                         2/2       Running   8          14d       10.1.0.204   k001
+kube-system   weave-net-nflsp                         2/2       Running   4          14d       10.1.0.206   k003
+root@k001:~# kubectl get svc -o wide --all-namespaces
+NAMESPACE     NAME                   TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)         AGE       SELECTOR
+default       kubernetes             ClusterIP   10.96.0.1        <none>        443/TCP         14d       <none>
+default       svc-test-1             ClusterIP   10.111.246.253   <none>        80/TCP          4d        app=web-front-end
+kube-system   kube-dns               ClusterIP   10.96.0.10       <none>        53/UDP,53/TCP   14d       k8s-app=kube-dns
+kube-system   kubernetes-dashboard   NodePort    10.110.210.181   <none>        443:31737/TCP   5d        k8s-app=kubernetes-dashboard
+root@k001:~#
+
 root@k001:~# ip a
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
