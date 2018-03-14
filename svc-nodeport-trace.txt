@@ -1,3 +1,14 @@
+
+node 내에서 (ClusterIP)  
+출발점 node의 iptables에서 svc--> node 선택이 이루어짐. 
+weave --> vxlan -->( phy --- phy )---> vxlan ---> weave ---> pod
+
+
+node 외부에서도 (nodePort)
+
+phy )--- weave ------ pod (바로 그 node에 pod가 있을 경우일 경우)
+            +--vxlan --weave---pod (다른 node에 pod가 있을 경우)
+
 (1) svc의 type을 ClusterIP에서 NodePort로 바꾸기
 
 root@k001:~# kubectl get svc -o wide
