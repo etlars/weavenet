@@ -1,3 +1,17 @@
+(0) 패킷캡춰 등 방해가 될만한 서비스 잠시 내리기 rc count --> 0으로
+
+root@k001:~# kubectl get deployments --all-namespaces
+NAMESPACE     NAME                   DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+default       deploy-test-1          2         2         2            2           4d
+default       deploy-test-2          2         2         2            2           4d
+default       iperfc                 1         1         1            1           4d
+default       iperfs                 2         2         2            2           4d
+kube-system   kube-dns               1         1         1            1           14d
+kube-system   kubernetes-dashboard   1         1         1            1           5d
+root@k001:~# kubectl scale deployment/kubernetes-dashboard --replicas=0 -n kube-system
+deployment "kubernetes-dashboard" scaled
+
+
 (1) deployment 선언해서 실행하기
 
 root@k0:~/work# cat deploy-test-1.yaml 
