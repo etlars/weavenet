@@ -1,0 +1,102 @@
+(1) svc의 type을 ClusterIP에서 NodePort로 바꾸기
+
+root@k001:~# kubectl get svc -o wide
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE       SELECTOR
+kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP   15d       <none>
+svc-test-1   ClusterIP   10.111.246.253   <none>        80/TCP    5d        app=web-front-end
+
+root@k001:~# kubectl edit svc/svc-test-1
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: 2018-03-09T02:16:38Z
+  name: svc-test-1
+  namespace: default
+  resourceVersion: "125531"
+  selfLink: /api/v1/namespaces/default/services/svc-test-1
+  uid: e6628730-233f-11e8-a881-000c29ceffb9
+spec:
+  clusterIP: 10.111.246.253
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: web-port
+  selector:
+    app: web-front-end
+  sessionAffinity: None
+  type: ClusterIP    <---- 여기를 NodePort로 바꿈
+status:
+  loadBalancer: {}
+    
+root@k001:~# kubectl get svc -o wide
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE       SELECTOR
+kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP        15d       <none>
+svc-test-1   NodePort    10.111.246.253   <none>        80:30639/TCP   5d        app=web-front-end    <--- Port 30639가 추가됨
+ 
+
+다시 확인해보면 바꾸어 있음
+
+root@k001:~# kubectl edit svc/svc-test-1
+service "svc-test-1" edited
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: 2018-03-09T02:16:38Z
+  name: svc-test-1
+  namespace: default
+  resourceVersion: "223968"
+  selfLink: /api/v1/namespaces/default/services/svc-test-1
+  uid: e6628730-233f-11e8-a881-000c29ceffb9
+spec:
+  clusterIP: 10.111.246.253
+  externalTrafficPolicy: Cluster
+  ports:
+  - nodePort: 30639
+    port: 80
+    protocol: TCP
+    targetPort: web-port
+  selector:
+    app: web-front-end
+  sessionAffinity: None
+  type: NodePort    <---- 여기
+status:
+  loadBalancer: {}
+  
+ 
+(2) 그래도 k8s 노드들 내에서 svc ip로 호출됨. 기존과 동일. 
+root@k003:~# curl 10.111.246.253
+This is Web Server 1 running on 9090!
+root@k003:~#
+
+
+(3) k8s 노드 외부에서 호출해보기
+
+일단 proxy....
+
+colorapple:~ colorapple$ export no_proxy=localhost,127.0.0.1,devstack,controller,network,compute1,compute2,192.168.59.103,70.60/16,odl-devstack1,packstack-ctrl,10.1.0.148,20.1.0.134,controller.com,70.60.31.147,10.1.0.176,10.1.0.177,10.1.0.178,10.1.0.179,10.1.0.180,10.1.0.192,10.1.0.193,11.1.0.1,11.1.0.2,11.1.0.3,11.1.0.10,10.1.0.204,10.1.0.205,10.1.0.206
+colorapple:~ colorapple$ clear
+
+이제 masternode:nodeport 로 호출
+colorapple:~ colorapple$ curl http://10.1.0.204:30639
+This is Web Server 1 running on 8080!
+colorapple:~ colorapple$ curl http://10.1.0.204:30639
+This is Web Server 1 running on 8080!
+
+slave node에서도
+colorapple:~ colorapple$ curl http://10.1.0.205:30639
+This is Web Server 1 running on 9090!
+
+나머지 slave node에서도
+colorapple:~ colorapple$ curl http://10.1.0.206:30639
+This is Web Server 1 running on 8080!
+colorapple:~ colorapple$
+
+다 됨~!
