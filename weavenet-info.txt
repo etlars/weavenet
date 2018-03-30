@@ -1,0 +1,48 @@
+reference : https://www.weave.works/docs/net/latest/kubernetes/kube-addon/
+
+root@k001:~# kubectl get po --all-namespaces
+NAMESPACE     NAME                                    READY     STATUS    RESTARTS   AGE
+default       deploy-test-1-8646c8d498-7kc2p          1/1       Running   1          21d
+default       deploy-test-1-8646c8d498-l8f2l          1/1       Running   0          16d
+default       deploy-test-2-679f8946df-8zct8          1/1       Running   0          16d
+default       deploy-test-2-679f8946df-wlwlr          1/1       Running   1          21d
+default       iperfc-7f8bc954d5-cz7ng                 1/1       Running   0          16d
+default       iperfs-5b784d89c-6rlkx                  1/1       Running   1          21d
+default       iperfs-5b784d89c-b49lx                  1/1       Running   0          16d
+kube-system   etcd-k001                               1/1       Running   4          31d
+kube-system   kube-apiserver-k001                     1/1       Running   4          31d
+kube-system   kube-controller-manager-k001            1/1       Running   5          31d
+kube-system   kube-dns-6f4fd4bdf-92jvn                3/3       Running   51         31d
+kube-system   kube-proxy-59c66                        1/1       Running   1          31d
+kube-system   kube-proxy-7qrc7                        1/1       Running   4          31d
+kube-system   kube-proxy-smbkq                        1/1       Running   1          31d
+kube-system   kube-scheduler-k001                     1/1       Running   4          31d
+kube-system   kubernetes-dashboard-5bd6f767c7-8nhrt   0/1       Error     11         15d
+kube-system   weave-net-ck5tw                         2/2       Running   16         31d
+kube-system   weave-net-jkjdv                         2/2       Running   13         31d
+kube-system   weave-net-nflsp                         2/2       Running   8          31d
+root@k001:~# kubectl get po -n kube-system -o wide | grep weave-net
+weave-net-ck5tw                         2/2       Running            16         31d       10.1.0.205   k002
+weave-net-jkjdv                         2/2       Running            13         31d       10.1.0.204   k001
+weave-net-nflsp                         2/2       Running            8          31d       10.1.0.206   k003
+root@k001:~# kubectl exec -n kube-system -it weave-net-jkjdv -c weave -- /home/weave/weave --local status
+
+        Version: 2.2.0 (failed to check latest version - see logs; next check at 2018/03/30 14:41:48)
+
+        Service: router
+       Protocol: weave 1..2
+           Name: a6:71:1b:65:6b:81(k001)
+     Encryption: disabled
+  PeerDiscovery: enabled
+        Targets: 3
+    Connections: 3 (2 established, 1 failed)
+          Peers: 3 (with 6 established connections)
+ TrustedSubnets: none
+
+        Service: ipam
+         Status: ready
+          Range: 10.32.0.0/12
+  DefaultSubnet: 10.32.0.0/12
+
+root@k001:~#
+
