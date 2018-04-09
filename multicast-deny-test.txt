@@ -51,6 +51,10 @@ ping from: mc1g-6f4bd8989c-lh749
 
 
 (3) 이제 다른 namespace에 집어넣자. 
+root@k01:~# kubectl create namespace mc1group
+namespace "mc1group" created
+root@k01:~# kubectl create namespace mc2group
+namespace "mc2group" created
 
 kubectl run mc2 --image=mjelen/demo-multicast --replicas=2
 kubectl run mc1 --image=mjelen/demo-multicast --replicas=2
