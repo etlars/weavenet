@@ -1,0 +1,238 @@
+1. 기존에 있던거 그대로 해보기.
+root@k001:~/work# cat deny-default-deny-mc1group.yaml
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: default-deny
+  namespace: mc1group
+spec:
+  podSelector: {}
+root@k001:~/work# kubectl get netpol -n mc1group
+NAME           POD-SELECTOR   AGE
+default-deny   <none>         1m
+root@k001:~/work# kubectl describe netpol default-deny
+Name:         default-deny
+Namespace:    default
+Created on:   2018-05-03 16:01:50 +0900 KST
+Labels:       <none>
+Annotations:  kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"default-deny","namespace":"default"},"spec":{"podSelec...
+Spec:
+  PodSelector:     <none> (Allowing the specific traffic to all pods in this namespace)
+  Allowing ingress traffic:
+    <none> (Selected pods are isolated for ingress connectivity)
+  Allowing egress traffic:
+    <none> (Selected pods are isolated for egress connectivity)
+  Policy Types: Ingress
+  
+root@k001:~/work# kubectl get po -o wide -n mc1group
+NAME                             READY     STATUS    RESTARTS   AGE       IP           NODE
+deploy-test-1-8646c8d498-qnqg6   1/1       Running   1          32d       10.44.0.19   k002
+mc1g-6f4bd8989c-lh749            1/1       Running   1          32d       10.44.0.20   k002
+mc1g-6f4bd8989c-zprdw            1/1       Running   1          32d       10.36.0.10   k003
+
+1-1. 같은 namespace에 있는 두 pods 10.44.0.20 <--> 10.36.0.10 간 ping 해보기 : 안됨. 
+  같은 namespace에 있어도 ingress 통신은 안됨. 
+  
+root@k001:~# kubectl exec -it mc1g-6f4bd8989c-lh749 -n mc1group -- /bin/bash
+[root@mc1g-6f4bd8989c-lh749 ~]# ping 10.36.0.10
+PING 10.36.0.10 (10.36.0.10) 56(84) bytes of data.
+^C
+--- 10.36.0.10 ping statistics ---
+30 packets transmitted, 0 received, 100% packet loss, time 28999ms
+
+[root@mc1g-6f4bd8989c-lh749 ~]#
+
+root@k001:~# kubectl exec -it mc1g-6f4bd8989c-zprdw -n mc1group -- /bin/bash
+[root@mc1g-6f4bd8989c-zprdw ~]# ping 10.44.0.20
+PING 10.44.0.20 (10.44.0.20) 56(84) bytes of data.
+^C
+--- 10.44.0.20 ping statistics ---
+9 packets transmitted, 0 received, 100% packet loss, time 7999ms
+
+[root@mc1g-6f4bd8989c-zprdw ~]#
+
+1-2. 기존 적용되어 있던 networkPolicy 삭제후 다시 시도하기 : 바로 됨. 
+
+root@k001:~/work# kubectl get netpol -n mc1group
+NAME           POD-SELECTOR   AGE
+default-deny   <none>         32d
+root@k001:~/work# kubectl delete netpol -n mc1group default-deny
+networkpolicy "default-deny" deleted
+[root@mc1g-6f4bd8989c-lh749 ~]# ping 10.36.0.10
+PING 10.36.0.10 (10.36.0.10) 56(84) bytes of data.
+64 bytes from 10.36.0.10: icmp_seq=1 ttl=64 time=0.524 ms
+
+[root@mc1g-6f4bd8989c-zprdw ~]# ping 10.44.0.20
+PING 10.44.0.20 (10.44.0.20) 56(84) bytes of data.
+64 bytes from 10.44.0.20: icmp_seq=1 ttl=64 time=0.635 ms
+
+
+2. 다른 namespace에서 접근제어하기 
+2-1. 일단 기존 networkPolicy 제거하기
+root@k001:~/work# kubectl delete netpol -n mc1group default-deny
+networkpolicy "default-deny" deleted
+root@k001:~/work# kubectl delete netpol default-deny
+networkpolicy "default-deny" deleted
+
+2-2. namespace mc1group <--> mc2group 간 통신하기 : 성공
+root@k001:~# kubectl get po -o wide --all-namespaces | grep -I group
+NAMESPACE     NAME                                    READY     STATUS    RESTARTS   AGE       IP           NODE
+mc1group      deploy-test-1-8646c8d498-qnqg6          1/1       Running   1          32d       10.44.0.19   k002
+mc1group      mc1g-6f4bd8989c-lh749                   1/1       Running   1          32d       10.44.0.20   k002
+mc1group      mc1g-6f4bd8989c-zprdw                   1/1       Running   1          32d       10.36.0.10   k003
+mc2group      deploy-test-1-8646c8d498-8nq59          1/1       Running   1          32d       10.44.0.22   k002
+mc2group      mc2g-6d4578df49-5m976                   1/1       Running   2          32d       10.36.0.11   k003
+mc2group      mc2g-6d4578df49-gz2df                   1/1       Running   1          32d       10.44.0.21   k002
+root@k001:~# kubectl exec -it mc2g-6d4578df49-5m976 -n mc2group -- /bin/bash
+[root@mc2g-6d4578df49-5m976 ~]#
+[root@mc2g-6d4578df49-5m976 ~]#
+[root@mc2g-6d4578df49-5m976 ~]# ping 10.44.0.20
+PING 10.44.0.20 (10.44.0.20) 56(84) bytes of data.
+64 bytes from 10.44.0.20: icmp_seq=1 ttl=64 time=1.81 ms
+
+[root@mc1g-6f4bd8989c-zprdw ~]# ping 10.36.0.11
+PING 10.36.0.11 (10.36.0.11) 56(84) bytes of data.
+64 bytes from 10.36.0.11: icmp_seq=1 ttl=64 time=0.144 ms
+
+
+2-3. default-deny-mc1group으로 namespace mc1group <--> mc2group 간 통신하기: 성공
+  mc1group으로 들어오는(ingress) 통신 다 막힘. 
+  반대로, mc1group에서 나가는(egress) 통신은 됨. 
+
+root@k001:~/work# kubectl apply -f deny-default-deny-mc1group.yaml
+networkpolicy "default-deny" created
+root@k001:~/work# kubectl get netpol --all-namespaces
+NAMESPACE   NAME           POD-SELECTOR   AGE
+mc1group    default-deny   <none>         6m
+
+[root@mc2g-6d4578df49-5m976 ~]# ping 10.44.0.20
+PING 10.44.0.20 (10.44.0.20) 56(84) bytes of data.
+^C
+--- 10.44.0.20 ping statistics ---
+53 packets transmitted, 0 received, 100% packet loss, time 52206ms
+
+[root@mc1g-6f4bd8989c-zprdw ~]# ping 10.36.0.11 -c3
+PING 10.36.0.11 (10.36.0.11) 56(84) bytes of data.
+64 bytes from 10.36.0.11: icmp_seq=1 ttl=64 time=0.084 ms
+64 bytes from 10.36.0.11: icmp_seq=2 ttl=64 time=0.183 ms
+64 bytes from 10.36.0.11: icmp_seq=3 ttl=64 time=0.075 ms
+
+--- 10.36.0.11 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.075/0.114/0.183/0.048 ms
+
+
+
+3. Egress 룰이 먹힐까? 안되는거 같음. 
+
+3-1. Egress만 default deny하기    mc2-->mc1 차단(ingress), mc1-->mc2 성공(egress)
+
+root@k001:~/work# cat deny-default-deny-mc1group.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: mc1group
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+root@k001:~/work# kubectl apply -f deny-default-deny-mc1group.yaml
+networkpolicy "default-deny" created
+root@k001:~/work#
+
+[root@mc2g-6d4578df49-5m976 ~]# ping 10.44.0.20 -c1
+PING 10.44.0.20 (10.44.0.20) 56(84) bytes of data.
+
+--- 10.44.0.20 ping statistics ---
+1 packets transmitted, 0 received, 100% packet loss, time 0ms
+
+[root@mc1g-6f4bd8989c-zprdw ~]# ping 10.36.0.11 -c1
+PING 10.36.0.11 (10.36.0.11) 56(84) bytes of data.
+64 bytes from 10.36.0.11: icmp_seq=1 ttl=64 time=0.094 ms
+
+
+
+3-2. Ingress만 넣고 다시 해보자
+root@k001:~/work# cat deny-default-deny-mc1group.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: mc1group
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  
+root@k001:~/work# kubectl apply -f deny-default-deny-mc1group.yaml
+networkpolicy "default-deny" created
+root@k001:~/work# kubectl describe netpol default-deny -n mc1group
+Name:         default-deny
+Namespace:    mc1group
+Created on:   2018-05-03 16:34:18 +0900 KST
+Labels:       <none>
+Annotations:  kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"default-deny","namespace":"mc1group"},"spec":{"podSele...
+Spec:
+  PodSelector:     <none> (Allowing the specific traffic to all pods in this namespace)
+  Allowing ingress traffic:
+    <none> (Selected pods are isolated for ingress connectivity)
+  Allowing egress traffic:
+    <none> (Selected pods are isolated for egress connectivity)
+  Policy Types: Ingress
+
+[root@mc2g-6d4578df49-5m976 ~]# ping 10.44.0.20 -c1
+PING 10.44.0.20 (10.44.0.20) 56(84) bytes of data.
+
+--- 10.44.0.20 ping statistics ---
+1 packets transmitted, 0 received, 100% packet loss, time 0ms
+
+[root@mc1g-6f4bd8989c-zprdw ~]# ping 10.36.0.11 -c1
+PING 10.36.0.11 (10.36.0.11) 56(84) bytes of data.
+64 bytes from 10.36.0.11: icmp_seq=1 ttl=64 time=0.125 ms
+
+--- 10.36.0.11 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.125/0.125/0.125/0.000 ms
+
+root@k001:~/work# vi deny-default-deny-mc1group.yaml
+root@k001:~/work# cat deny-default-deny-mc1group.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: mc1group
+spec:
+  podSelector: {}
+  policyTypes:
+root@k001:~/work# kubectl apply -f deny-default-deny-mc1group.yaml
+networkpolicy "default-deny" created
+root@k001:~/work# kubectl describe netpol default-deny -n mc1group
+Name:         default-deny
+Namespace:    mc1group
+Created on:   2018-05-03 16:36:44 +0900 KST
+Labels:       <none>
+Annotations:  kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"default-deny","namespace":"mc1group"},"spec":{"podSele...
+Spec:
+  PodSelector:     <none> (Allowing the specific traffic to all pods in this namespace)
+  Allowing ingress traffic:
+    <none> (Selected pods are isolated for ingress connectivity)
+  Allowing egress traffic:
+    <none> (Selected pods are isolated for egress connectivity)
+  Policy Types: Ingress
+root@k001:~/work#
+
+[root@mc2g-6d4578df49-5m976 ~]# ping 10.44.0.20 -c1
+PING 10.44.0.20 (10.44.0.20) 56(84) bytes of data.
+
+--- 10.44.0.20 ping statistics ---
+1 packets transmitted, 0 received, 100% packet loss, time 0ms
+
+
+[root@mc1g-6f4bd8989c-zprdw ~]# ping 10.36.0.11 -c1
+PING 10.36.0.11 (10.36.0.11) 56(84) bytes of data.
+64 bytes from 10.36.0.11: icmp_seq=1 ttl=64 time=0.082 ms
+
+--- 10.36.0.11 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.082/0.082/0.082/0.000 ms
