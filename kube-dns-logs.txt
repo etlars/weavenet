@@ -1,3 +1,30 @@
+root@k001:~# kubectl get po -n kube-system
+NAME                                    READY     STATUS    RESTARTS   AGE
+etcd-k001                               1/1       Running   9          107d
+kube-apiserver-k001                     1/1       Running   9          107d
+kube-controller-manager-k001            1/1       Running   11         107d
+kube-dns-6f4fd4bdf-92jvn                3/3       Running   66         107d
+kube-proxy-59c66                        1/1       Running   6          107d
+kube-proxy-7qrc7                        1/1       Running   9          107d
+kube-proxy-smbkq                        1/1       Running   6          107d
+kube-scheduler-k001                     1/1       Running   9          107d
+kubernetes-dashboard-5bd6f767c7-m4s9p   1/1       Running   4          75d
+weave-net-ck5tw                         2/2       Running   33         107d
+weave-net-jkjdv                         2/2       Running   30         107d
+weave-net-nflsp                         2/2       Running   24         107d
+root@k001:~# kubectl logs -n kube-system kube-dns-6f4fd4bdf-92jvn -p sidecar
+I0502 04:35:10.905758       1 main.go:51] Version v1.14.6-3-gc36cb11
+I0502 04:35:10.906095       1 server.go:45] Starting server (options {DnsMasqPort:53 DnsMasqAddr:127.0.0.1 DnsMasqPollIntervalMs:5000 Probes:[{Label:kubedns Server:127.0.0.1:10053 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:33} {Label:dnsmasq Server:127.0.0.1:53 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:33}] PrometheusAddr:0.0.0.0 PrometheusPort:10054 PrometheusPath:/metrics PrometheusNamespace:kubedns})
+I0502 04:35:10.906170       1 dnsprobe.go:75] Starting dnsProbe {Label:kubedns Server:127.0.0.1:10053 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:33}
+I0502 04:35:10.906352       1 dnsprobe.go:75] Starting dnsProbe {Label:dnsmasq Server:127.0.0.1:53 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:33}
+
+root@k001:~# kubectl logs -n kube-system kube-dns-6f4fd4bdf-92jvn -c sidecar
+I0614 04:38:12.899655       1 main.go:51] Version v1.14.6-3-gc36cb11
+I0614 04:38:12.900166       1 server.go:45] Starting server (options {DnsMasqPort:53 DnsMasqAddr:127.0.0.1 DnsMasqPollIntervalMs:5000 Probes:[{Label:kubedns Server:127.0.0.1:10053 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:33} {Label:dnsmasq Server:127.0.0.1:53 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:33}] PrometheusAddr:0.0.0.0 PrometheusPort:10054 PrometheusPath:/metrics PrometheusNamespace:kubedns})
+I0614 04:38:12.900825       1 dnsprobe.go:75] Starting dnsProbe {Label:kubedns Server:127.0.0.1:10053 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:33}
+I0614 04:38:12.900983       1 dnsprobe.go:75] Starting dnsProbe {Label:dnsmasq Server:127.0.0.1:53 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:33}
+
+
 root@k001:~# kubectl logs --namespace=kube-system $(kubectl get pods --namespace=kube-system -l k8s-app=kube-dns -o name) -c kubedns
 I0614 04:38:12.881604       1 dns.go:48] version: 1.14.6-3-gc36cb11
 I0614 04:38:12.885818       1 server.go:69] Using configuration read from directory: /kube-dns-config with period 10s
