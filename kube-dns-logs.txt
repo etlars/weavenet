@@ -1,0 +1,58 @@
+root@k001:~# kubectl logs --namespace=kube-system $(kubectl get pods --namespace=kube-system -l k8s-app=kube-dns -o name) -c kubedns
+I0614 04:38:12.881604       1 dns.go:48] version: 1.14.6-3-gc36cb11
+I0614 04:38:12.885818       1 server.go:69] Using configuration read from directory: /kube-dns-config with period 10s
+I0614 04:38:12.886128       1 server.go:112] FLAG: --alsologtostderr="false"
+I0614 04:38:12.886166       1 server.go:112] FLAG: --config-dir="/kube-dns-config"
+I0614 04:38:12.886194       1 server.go:112] FLAG: --config-map=""
+I0614 04:38:12.886201       1 server.go:112] FLAG: --config-map-namespace="kube-system"
+I0614 04:38:12.886297       1 server.go:112] FLAG: --config-period="10s"
+I0614 04:38:12.886311       1 server.go:112] FLAG: --dns-bind-address="0.0.0.0"
+I0614 04:38:12.886316       1 server.go:112] FLAG: --dns-port="10053"
+I0614 04:38:12.886322       1 server.go:112] FLAG: --domain="cluster.local."
+I0614 04:38:12.886328       1 server.go:112] FLAG: --federations=""
+I0614 04:38:12.886334       1 server.go:112] FLAG: --healthz-port="8081"
+I0614 04:38:12.886338       1 server.go:112] FLAG: --initial-sync-timeout="1m0s"
+I0614 04:38:12.886346       1 server.go:112] FLAG: --kube-master-url=""
+I0614 04:38:12.886367       1 server.go:112] FLAG: --kubecfg-file=""
+I0614 04:38:12.886378       1 server.go:112] FLAG: --log-backtrace-at=":0"
+I0614 04:38:12.886386       1 server.go:112] FLAG: --log-dir=""
+I0614 04:38:12.886409       1 server.go:112] FLAG: --log-flush-frequency="5s"
+I0614 04:38:12.886426       1 server.go:112] FLAG: --logtostderr="true"
+I0614 04:38:12.886430       1 server.go:112] FLAG: --nameservers=""
+I0614 04:38:12.886434       1 server.go:112] FLAG: --stderrthreshold="2"
+I0614 04:38:12.886438       1 server.go:112] FLAG: --v="2"
+I0614 04:38:12.886469       1 server.go:112] FLAG: --version="false"
+I0614 04:38:12.886476       1 server.go:112] FLAG: --vmodule=""
+I0614 04:38:12.886522       1 server.go:194] Starting SkyDNS server (0.0.0.0:10053)
+I0614 04:38:12.889028       1 server.go:213] Skydns metrics enabled (/metrics:10055)
+I0614 04:38:12.889059       1 dns.go:146] Starting endpointsController
+I0614 04:38:12.889065       1 dns.go:149] Starting serviceController
+I0614 04:38:13.016417       1 logs.go:41] skydns: ready for queries on cluster.local. for tcp://0.0.0.0:10053 [rcache 0]
+I0614 04:38:13.016488       1 logs.go:41] skydns: ready for queries on cluster.local. for udp://0.0.0.0:10053 [rcache 0]
+I0614 04:38:13.391835       1 dns.go:173] Waiting for services and endpoints to be initialized from apiserver...
+I0614 04:38:13.889750       1 dns.go:170] Initialized services and endpoints from apiserver
+I0614 04:38:13.889814       1 server.go:128] Setting up Healthz Handler (/readiness)
+I0614 04:38:13.889829       1 server.go:133] Setting up cache handler (/cache)
+I0614 04:38:13.889835       1 server.go:119] Status HTTP port 8081
+root@k001:~# kubectl logs --namespace=kube-system $(kubectl get pods --namespace=kube-system -l k8s-app=kube-dns -o name) -c dnsmasq
+I0614 04:38:11.432992       1 main.go:76] opts: {{/usr/sbin/dnsmasq [-k --cache-size=1000 --no-negcache --log-facility=- --server=/cluster.local/127.0.0.1#10053 --server=/in-addr.arpa/127.0.0.1#10053 --server=/ip6.arpa/127.0.0.1#10053] true} /etc/k8s/dns/dnsmasq-nanny 10000000000}
+I0614 04:38:11.433870       1 nanny.go:94] Starting dnsmasq [-k --cache-size=1000 --no-negcache --log-facility=- --server=/cluster.local/127.0.0.1#10053 --server=/in-addr.arpa/127.0.0.1#10053 --server=/ip6.arpa/127.0.0.1#10053]
+I0614 04:38:12.171378       1 nanny.go:116] dnsmasq[10]: started, version 2.78 cachesize 1000
+I0614 04:38:12.171473       1 nanny.go:119]
+W0614 04:38:12.171505       1 nanny.go:120] Got EOF from stdout
+I0614 04:38:12.171435       1 nanny.go:116] dnsmasq[10]: compile time options: IPv6 GNU-getopt no-DBus no-i18n no-IDN DHCP DHCPv6 no-Lua TFTP no-conntrack ipset auth no-DNSSEC loop-detect inotify
+I0614 04:38:12.171769       1 nanny.go:116] dnsmasq[10]: using nameserver 127.0.0.1#10053 for domain ip6.arpa
+I0614 04:38:12.171837       1 nanny.go:116] dnsmasq[10]: using nameserver 127.0.0.1#10053 for domain in-addr.arpa
+I0614 04:38:12.171942       1 nanny.go:116] dnsmasq[10]: using nameserver 127.0.0.1#10053 for domain cluster.local
+I0614 04:38:12.172202       1 nanny.go:116] dnsmasq[10]: reading /etc/resolv.conf
+I0614 04:38:12.172305       1 nanny.go:116] dnsmasq[10]: using nameserver 127.0.0.1#10053 for domain ip6.arpa
+I0614 04:38:12.172426       1 nanny.go:116] dnsmasq[10]: using nameserver 127.0.0.1#10053 for domain in-addr.arpa
+I0614 04:38:12.172529       1 nanny.go:116] dnsmasq[10]: using nameserver 127.0.0.1#10053 for domain cluster.local
+I0614 04:38:12.172592       1 nanny.go:116] dnsmasq[10]: using nameserver 203.241.132.34#53
+I0614 04:38:12.172616       1 nanny.go:116] dnsmasq[10]: using nameserver 20.1.0.2#53
+I0614 04:38:12.173069       1 nanny.go:116] dnsmasq[10]: read /etc/hosts - 7 addresses
+root@k001:~# kubectl logs --namespace=kube-system $(kubectl get pods --namespace=kube-system -l k8s-app=kube-dns -o name) -c sidecar
+I0614 04:38:12.899655       1 main.go:51] Version v1.14.6-3-gc36cb11
+I0614 04:38:12.900166       1 server.go:45] Starting server (options {DnsMasqPort:53 DnsMasqAddr:127.0.0.1 DnsMasqPollIntervalMs:5000 Probes:[{Label:kubedns Server:127.0.0.1:10053 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:33} {Label:dnsmasq Server:127.0.0.1:53 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:33}] PrometheusAddr:0.0.0.0 PrometheusPort:10054 PrometheusPath:/metrics PrometheusNamespace:kubedns})
+I0614 04:38:12.900825       1 dnsprobe.go:75] Starting dnsProbe {Label:kubedns Server:127.0.0.1:10053 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:33}
+I0614 04:38:12.900983       1 dnsprobe.go:75] Starting dnsProbe {Label:dnsmasq Server:127.0.0.1:53 Name:kubernetes.default.svc.cluster.local. Interval:5s Type:33}
