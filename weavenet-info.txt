@@ -46,3 +46,11 @@ root@k001:~# kubectl exec -n kube-system -it weave-net-jkjdv -c weave -- /home/w
 
 root@k001:~#
 
+root@k001:~# kubectl get ep --all-namespaces
+NAMESPACE     NAME                      ENDPOINTS                     AGE
+default       kubernetes                10.1.0.204:6443               106d
+default       svc-test-1                <none>                        97d
+kube-system   kube-controller-manager   <none>                        106d
+kube-system   kube-dns                  10.32.0.16:53,10.32.0.16:53   106d
+kube-system   kube-scheduler            <none>                        106d
+kube-system   kubernetes-dashboard      10.32.0.15:8443               97d
