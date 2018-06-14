@@ -1,0 +1,119 @@
+root@k001:~# kubectl get po -n=kube-system -o wide | grep weave-net
+weave-net-ck5tw                         2/2       Running   33         106d      10.1.0.205   k002
+weave-net-jkjdv                         2/2       Running   30         106d      10.1.0.204   k001
+weave-net-nflsp                         2/2       Running   24         106d      10.1.0.206   k003
+
+root@k001:~# kubectl logs weave-net-jkjdv -n kube-system weave
+DEBU: 2018/06/14 04:37:51.707657 [kube-peers] Checking peer "a6:71:1b:65:6b:81" against list &{[{a6:71:1b:65:6b:81 k001} {3a:52:22:3e:7d:1e k002} {16:b1:25:6e:54:9f k003}]}
+INFO: 2018/06/14 04:37:51.858759 Command line options: map[datapath:datapath expect-npc:true http-addr:127.0.0.1:6784 nickname:k001 no-dns:true status-addr:0.0.0.0:6782 conn-limit:30 ipalloc-init:consensus=3 ipalloc-range:10.32.0.0/12 db-prefix:/weavedb/weave-net docker-api: port:6783 host-root:/host name:a6:71:1b:65:6b:81]
+INFO: 2018/06/14 04:37:51.858838 weave  2.2.0
+INFO: 2018/06/14 04:37:52.707429 Bridge type is bridged_fastdp
+INFO: 2018/06/14 04:37:52.707494 Communication between peers is unencrypted.
+INFO: 2018/06/14 04:37:52.736616 Our name is a6:71:1b:65:6b:81(k001)
+INFO: 2018/06/14 04:37:52.736665 Launch detected - using supplied peer list: [10.1.0.204 10.1.0.205 10.1.0.206]
+INFO: 2018/06/14 04:37:52.736685 Checking for pre-existing addresses on weave bridge
+INFO: 2018/06/14 04:37:52.743401 [allocator a6:71:1b:65:6b:81] Initialising with persisted data
+INFO: 2018/06/14 04:37:52.743438 Sniffing traffic on datapath (via ODP)
+INFO: 2018/06/14 04:37:53.214291 ->[10.1.0.206:6783] attempting connection
+INFO: 2018/06/14 04:37:53.214555 ->[10.1.0.204:6783] attempting connection
+INFO: 2018/06/14 04:37:53.214768 ->[10.1.0.205:6783] attempting connection
+INFO: 2018/06/14 04:37:53.224436 ->[10.1.0.204:39073] connection accepted
+INFO: 2018/06/14 04:37:53.271433 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:37:53.290450 Listening for HTTP control messages on 127.0.0.1:6784
+INFO: 2018/06/14 04:37:53.290870 Listening for metrics requests on 0.0.0.0:6782
+INFO: 2018/06/14 04:37:53.314317 ->[10.1.0.204:39073|a6:71:1b:65:6b:81(k001)]: connection shutting down due to error: cannot connect to ourself
+INFO: 2018/06/14 04:37:53.314945 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:37:53.425203 ->[10.1.0.204:6783|a6:71:1b:65:6b:81(k001)]: connection shutting down due to error: cannot connect to ourself
+INFO: 2018/06/14 04:37:54.116133 [kube-peers] Added myself to peer list &{[{a6:71:1b:65:6b:81 k001} {3a:52:22:3e:7d:1e k002} {16:b1:25:6e:54:9f k003}]}
+DEBU: 2018/06/14 04:37:54.118334 [kube-peers] Nodes that have disappeared: map[]
+10.32.0.1
+INFO: 2018/06/14 04:37:54.510519 ->[10.1.0.206:6783] attempting connection
+INFO: 2018/06/14 04:37:54.511262 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:37:55.044280 ->[10.1.0.205:6783] attempting connection
+INFO: 2018/06/14 04:37:55.044916 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:37:56.743231 ->[10.1.0.206:6783] attempting connection
+INFO: 2018/06/14 04:37:56.743858 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:37:56.913391 ->[10.1.0.205:6783] attempting connection
+INFO: 2018/06/14 04:37:56.914059 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:38:01.039183 ->[10.1.0.205:6783] attempting connection
+INFO: 2018/06/14 04:38:01.039777 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:38:01.542850 ->[10.1.0.206:6783] attempting connection
+INFO: 2018/06/14 04:38:01.545313 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:38:04.788159 ->[10.1.0.205:6783] attempting connection
+INFO: 2018/06/14 04:38:04.790026 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:38:05.124816 ->[10.1.0.206:6783] attempting connection
+INFO: 2018/06/14 04:38:05.125502 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:38:08.474874 Error checking version: Get https://checkpoint-api.weave.works/v1/check/weave-net?arch=amd64&flag_docker-version=none&flag_kernel-version=4.4.0-116-generic&os=linux&signature=QwOOLAtcc2A%2FCHdMfnBrHAo4Iinyr59fnFZksuHXkpw%3D&version=2.2.0: dial tcp 216.58.197.115:443: i/o timeout
+INFO: 2018/06/14 04:38:13.230677 ->[10.1.0.205:6783] attempting connection
+INFO: 2018/06/14 04:38:13.231237 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:38:19.553856 ->[10.1.0.206:6783] attempting connection
+INFO: 2018/06/14 04:38:19.554575 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:38:22.805089 ->[10.1.0.205:6783] attempting connection
+INFO: 2018/06/14 04:38:22.805772 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:38:29.656840 ->[10.1.0.206:6783] attempting connection
+INFO: 2018/06/14 04:38:29.658067 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:38:52.985386 ->[10.1.0.206:6783] attempting connection
+INFO: 2018/06/14 04:38:52.986101 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:38:53.257053 ->[10.1.0.205:6783] attempting connection
+INFO: 2018/06/14 04:38:53.257911 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:39:10.518100 ->[10.1.0.206:6783] attempting connection
+INFO: 2018/06/14 04:39:10.518994 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:39:25.558890 ->[10.1.0.205:6783] attempting connection
+INFO: 2018/06/14 04:39:25.559592 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:40:11.513063 ->[10.1.0.206:6783] attempting connection
+INFO: 2018/06/14 04:40:11.513794 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:40:30.961804 ->[10.1.0.205:6783] attempting connection
+INFO: 2018/06/14 04:40:30.962665 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:40:32.437196 ->[10.1.0.205:45049] connection accepted
+INFO: 2018/06/14 04:40:32.481469 ->[10.1.0.205:45049|3a:52:22:3e:7d:1e(k002)]: connection ready; using protocol version 2
+INFO: 2018/06/14 04:40:32.481742 overlay_switch ->[3a:52:22:3e:7d:1e(k002)] using fastdp
+INFO: 2018/06/14 04:40:32.481881 ->[10.1.0.205:45049|3a:52:22:3e:7d:1e(k002)]: connection added (new peer)
+INFO: 2018/06/14 04:40:32.507975 ->[10.1.0.205:45049|3a:52:22:3e:7d:1e(k002)]: connection fully established
+INFO: 2018/06/14 04:40:32.552777 EMSGSIZE on send, expecting PMTU update (IP packet was 60028 bytes, payload was 60020 bytes)
+INFO: 2018/06/14 04:40:32.554601 sleeve ->[10.1.0.205:6783|3a:52:22:3e:7d:1e(k002)]: Effective MTU verified at 1438
+INFO: 2018/06/14 04:40:32.579899 Discovered remote MAC 5a:67:22:b8:f2:04 at 3a:52:22:3e:7d:1e(k002)
+INFO: 2018/06/14 04:40:32.683749 Discovered remote MAC 3a:52:22:3e:7d:1e at 3a:52:22:3e:7d:1e(k002)
+INFO: 2018/06/14 04:40:32.695963 Discovered remote MAC ca:ed:18:04:2e:9c at 3a:52:22:3e:7d:1e(k002)
+INFO: 2018/06/14 04:40:33.182995 Discovered remote MAC 3e:69:e9:26:f2:dc at 3a:52:22:3e:7d:1e(k002)
+INFO: 2018/06/14 04:40:33.230145 Discovered remote MAC 32:c7:51:c3:d0:4d at 3a:52:22:3e:7d:1e(k002)
+INFO: 2018/06/14 04:40:33.390253 Discovered remote MAC 52:bf:1d:97:f2:3b at 3a:52:22:3e:7d:1e(k002)
+INFO: 2018/06/14 04:40:33.704262 Discovered remote MAC 6a:45:7c:95:c2:1c at 3a:52:22:3e:7d:1e(k002)
+INFO: 2018/06/14 04:40:33.861821 Discovered remote MAC 3e:c5:fc:65:8a:56 at 3a:52:22:3e:7d:1e(k002)
+INFO: 2018/06/14 04:40:34.197046 Discovered remote MAC 72:3b:c1:16:de:49 at 3a:52:22:3e:7d:1e(k002)
+INFO: 2018/06/14 04:40:34.328721 Discovered remote MAC c6:d4:ef:e4:9b:26 at 3a:52:22:3e:7d:1e(k002)
+INFO: 2018/06/14 04:40:34.639087 Discovered remote MAC da:48:bd:b4:ad:b6 at 3a:52:22:3e:7d:1e(k002)
+INFO: 2018/06/14 04:40:34.853749 Discovered remote MAC 5a:ba:8d:55:2a:73 at 3a:52:22:3e:7d:1e(k002)
+INFO: 2018/06/14 04:41:28.687815 ->[10.1.0.206:6783] attempting connection
+INFO: 2018/06/14 04:41:28.689268 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:43:10.102791 ->[10.1.0.206:6783] attempting connection
+INFO: 2018/06/14 04:43:10.103783 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:47:22.390158 ->[10.1.0.206:6783] attempting connection
+INFO: 2018/06/14 04:47:22.391265 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
+INFO: 2018/06/14 04:48:44.472559 ->[10.1.0.206:38905] connection accepted
+INFO: 2018/06/14 04:48:44.591808 ->[10.1.0.206:38905|16:b1:25:6e:54:9f(k003)]: connection ready; using protocol version 2
+INFO: 2018/06/14 04:48:44.592299 overlay_switch ->[16:b1:25:6e:54:9f(k003)] using fastdp
+INFO: 2018/06/14 04:48:44.592503 ->[10.1.0.206:38905|16:b1:25:6e:54:9f(k003)]: connection added (new peer)
+INFO: 2018/06/14 04:48:44.692390 EMSGSIZE on send, expecting PMTU update (IP packet was 60028 bytes, payload was 60020 bytes)
+INFO: 2018/06/14 04:48:44.693304 overlay_switch ->[16:b1:25:6e:54:9f(k003)] using sleeve
+INFO: 2018/06/14 04:48:44.693862 ->[10.1.0.206:38905|16:b1:25:6e:54:9f(k003)]: connection fully established
+INFO: 2018/06/14 04:48:44.696619 sleeve ->[10.1.0.206:6783|16:b1:25:6e:54:9f(k003)]: Effective MTU verified at 1438
+INFO: 2018/06/14 04:48:44.760789 Discovered remote MAC 16:b1:25:6e:54:9f at 16:b1:25:6e:54:9f(k003)
+INFO: 2018/06/14 04:48:44.761662 Discovered remote MAC 46:6d:fb:6a:e6:3f at 16:b1:25:6e:54:9f(k003)
+INFO: 2018/06/14 04:48:44.805087 Discovered remote MAC c2:1b:52:f9:ad:1f at 16:b1:25:6e:54:9f(k003)
+INFO: 2018/06/14 04:48:45.095386 overlay_switch ->[16:b1:25:6e:54:9f(k003)] using fastdp
+root@k001:~#
+
+
+root@k001:~# kubectl logs weave-net-jkjdv -n kube-system weave-npc
+INFO: 2018/06/14 04:36:48.756006 Starting Weaveworks NPC 2.2.0; node name "k001"
+INFO: 2018/06/14 04:36:48.828221 Serving /metrics on :6781
+Thu Jun 14 04:36:50 2018 <5> ulogd.c:843 building new pluginstance stack: 'log1:NFLOG,base1:BASE,pcap1:PCAP'
+DEBU: 2018/06/14 04:36:50.465840 Got list of ipsets: []
+ERROR: logging before flag.Parse: E0614 04:37:21.487790    2433 reflector.go:205] github.com/weaveworks/weave/prog/weave-npc/main.go:229: Failed to list *v1.Pod: Get https://10.96.0.1:443/api/v1/pods?resourceVersion=0: dial tcp 10.96.0.1:443: i/o timeout
+ERROR: logging before flag.Parse: E0614 04:37:21.487945    2433 reflector.go:205] github.com/weaveworks/weave/prog/weave-npc/main.go:230: Failed to list *v1.NetworkPolicy: Get https://10.96.0.1:443/apis/networking.k8s.io/v1/networkpolicies?resourceVersion=0: dial tcp 10.96.0.1:443: i/o timeout
+ERROR: logging before flag.Parse: E0614 04:37:21.489034    2433 reflector.go:205] github.com/weaveworks/weave/prog/weave-npc/main.go:228: Failed to list *v1.Namespace: Get https://10.96.0.1:443/api/v1/namespaces?resourceVersion=0: dial tcp 10.96.0.1:443: i/o timeout
+INFO: 2018/06/14 04:37:23.825606 EVENT AddNetworkPolicy {"metadata":{"annotations":{"kubectl.kubernetes.io/last-applied-configuration":"{\"apiVersion\":\"networking.k8s.io/v1\",\"kind\":\"NetworkPolicy\",\"metadata\":{\"annotations\":{},\"name\":\"default-deny\",\"namespace\":\"mc1group\"},\"spec\":{\"podSelector\":{},\"policyTypes\":null}}\n"},"creationTimestamp":"2018-05-03T07:36:44Z","generation":1,"name":"default-deny","namespace":"mc1group","resourceVersion":"553590","selfLink":"/apis/networking.k8s.io/v1/namespaces/mc1group/networkpolicies/default-deny","uid":"ba33e805-4ea4-11e8-9d20-000c29ceffb9"},"spec":{"podSelector":{},"policyTypes":["Ingress"]}}
+INFO: 2018/06/14 04:37:23.828365 creating ipset: &npc.selectorSpec{key:"", selector:labels.internalSelector{}, dst:false, ipsetType:"hash:ip", ipsetName:"weave-el#w6X4{pi/%{Sl)][OR53qz{", nsName:"mc1group"}
+...
+
+
