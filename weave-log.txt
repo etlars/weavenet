@@ -1,3 +1,4 @@
+
 root@k001:~# kubectl get po -n=kube-system -o wide | grep weave-net
 weave-net-ck5tw                         2/2       Running   33         106d      10.1.0.205   k002
 weave-net-jkjdv                         2/2       Running   30         106d      10.1.0.204   k001
@@ -28,42 +29,7 @@ INFO: 2018/06/14 04:37:54.116133 [kube-peers] Added myself to peer list &{[{a6:7
 DEBU: 2018/06/14 04:37:54.118334 [kube-peers] Nodes that have disappeared: map[]
 10.32.0.1
 INFO: 2018/06/14 04:37:54.510519 ->[10.1.0.206:6783] attempting connection
-INFO: 2018/06/14 04:37:54.511262 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:37:55.044280 ->[10.1.0.205:6783] attempting connection
-INFO: 2018/06/14 04:37:55.044916 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:37:56.743231 ->[10.1.0.206:6783] attempting connection
-INFO: 2018/06/14 04:37:56.743858 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:37:56.913391 ->[10.1.0.205:6783] attempting connection
-INFO: 2018/06/14 04:37:56.914059 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:38:01.039183 ->[10.1.0.205:6783] attempting connection
-INFO: 2018/06/14 04:38:01.039777 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:38:01.542850 ->[10.1.0.206:6783] attempting connection
-INFO: 2018/06/14 04:38:01.545313 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:38:04.788159 ->[10.1.0.205:6783] attempting connection
-INFO: 2018/06/14 04:38:04.790026 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:38:05.124816 ->[10.1.0.206:6783] attempting connection
-INFO: 2018/06/14 04:38:05.125502 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:38:08.474874 Error checking version: Get https://checkpoint-api.weave.works/v1/check/weave-net?arch=amd64&flag_docker-version=none&flag_kernel-version=4.4.0-116-generic&os=linux&signature=QwOOLAtcc2A%2FCHdMfnBrHAo4Iinyr59fnFZksuHXkpw%3D&version=2.2.0: dial tcp 216.58.197.115:443: i/o timeout
 INFO: 2018/06/14 04:38:13.230677 ->[10.1.0.205:6783] attempting connection
-INFO: 2018/06/14 04:38:13.231237 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:38:19.553856 ->[10.1.0.206:6783] attempting connection
-INFO: 2018/06/14 04:38:19.554575 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:38:22.805089 ->[10.1.0.205:6783] attempting connection
-INFO: 2018/06/14 04:38:22.805772 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:38:29.656840 ->[10.1.0.206:6783] attempting connection
-INFO: 2018/06/14 04:38:29.658067 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:38:52.985386 ->[10.1.0.206:6783] attempting connection
-INFO: 2018/06/14 04:38:52.986101 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:38:53.257053 ->[10.1.0.205:6783] attempting connection
-INFO: 2018/06/14 04:38:53.257911 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:39:10.518100 ->[10.1.0.206:6783] attempting connection
-INFO: 2018/06/14 04:39:10.518994 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:39:25.558890 ->[10.1.0.205:6783] attempting connection
-INFO: 2018/06/14 04:39:25.559592 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:40:11.513063 ->[10.1.0.206:6783] attempting connection
-INFO: 2018/06/14 04:40:11.513794 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
-INFO: 2018/06/14 04:40:30.961804 ->[10.1.0.205:6783] attempting connection
-INFO: 2018/06/14 04:40:30.962665 ->[10.1.0.205:6783] error during connection attempt: dial tcp4 :0->10.1.0.205:6783: getsockopt: connection refused
 INFO: 2018/06/14 04:40:32.437196 ->[10.1.0.205:45049] connection accepted
 INFO: 2018/06/14 04:40:32.481469 ->[10.1.0.205:45049|3a:52:22:3e:7d:1e(k002)]: connection ready; using protocol version 2
 INFO: 2018/06/14 04:40:32.481742 overlay_switch ->[3a:52:22:3e:7d:1e(k002)] using fastdp
@@ -72,17 +38,6 @@ INFO: 2018/06/14 04:40:32.507975 ->[10.1.0.205:45049|3a:52:22:3e:7d:1e(k002)]: c
 INFO: 2018/06/14 04:40:32.552777 EMSGSIZE on send, expecting PMTU update (IP packet was 60028 bytes, payload was 60020 bytes)
 INFO: 2018/06/14 04:40:32.554601 sleeve ->[10.1.0.205:6783|3a:52:22:3e:7d:1e(k002)]: Effective MTU verified at 1438
 INFO: 2018/06/14 04:40:32.579899 Discovered remote MAC 5a:67:22:b8:f2:04 at 3a:52:22:3e:7d:1e(k002)
-INFO: 2018/06/14 04:40:32.683749 Discovered remote MAC 3a:52:22:3e:7d:1e at 3a:52:22:3e:7d:1e(k002)
-INFO: 2018/06/14 04:40:32.695963 Discovered remote MAC ca:ed:18:04:2e:9c at 3a:52:22:3e:7d:1e(k002)
-INFO: 2018/06/14 04:40:33.182995 Discovered remote MAC 3e:69:e9:26:f2:dc at 3a:52:22:3e:7d:1e(k002)
-INFO: 2018/06/14 04:40:33.230145 Discovered remote MAC 32:c7:51:c3:d0:4d at 3a:52:22:3e:7d:1e(k002)
-INFO: 2018/06/14 04:40:33.390253 Discovered remote MAC 52:bf:1d:97:f2:3b at 3a:52:22:3e:7d:1e(k002)
-INFO: 2018/06/14 04:40:33.704262 Discovered remote MAC 6a:45:7c:95:c2:1c at 3a:52:22:3e:7d:1e(k002)
-INFO: 2018/06/14 04:40:33.861821 Discovered remote MAC 3e:c5:fc:65:8a:56 at 3a:52:22:3e:7d:1e(k002)
-INFO: 2018/06/14 04:40:34.197046 Discovered remote MAC 72:3b:c1:16:de:49 at 3a:52:22:3e:7d:1e(k002)
-INFO: 2018/06/14 04:40:34.328721 Discovered remote MAC c6:d4:ef:e4:9b:26 at 3a:52:22:3e:7d:1e(k002)
-INFO: 2018/06/14 04:40:34.639087 Discovered remote MAC da:48:bd:b4:ad:b6 at 3a:52:22:3e:7d:1e(k002)
-INFO: 2018/06/14 04:40:34.853749 Discovered remote MAC 5a:ba:8d:55:2a:73 at 3a:52:22:3e:7d:1e(k002)
 INFO: 2018/06/14 04:41:28.687815 ->[10.1.0.206:6783] attempting connection
 INFO: 2018/06/14 04:41:28.689268 ->[10.1.0.206:6783] error during connection attempt: dial tcp4 :0->10.1.0.206:6783: getsockopt: connection refused
 INFO: 2018/06/14 04:43:10.102791 ->[10.1.0.206:6783] attempting connection
